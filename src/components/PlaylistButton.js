@@ -85,7 +85,7 @@ const PlaylistButton = ({ tracks, artistName }) => {
   return (
     <>
       <Button onClick={createPlaylist} variant="contained" color="primary">
-        Create Playlist
+        Create Playlist All Tracks
       </Button>
       {playlistDetails && (
         <Typography mt={2}>
@@ -95,7 +95,7 @@ const PlaylistButton = ({ tracks, artistName }) => {
           </Link>
         </Typography>
       )}
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={100} onClose={handleClose}>
         <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {message}
         </Alert>

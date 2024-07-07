@@ -1,5 +1,6 @@
+import "../src/globals.css";
 import { SessionProvider } from "next-auth/react";
-import Header from "../src/components/Header";
+import Header from "@/src/components/Header";
 
 function MyApp({ Component, pageProps }) {
   return (

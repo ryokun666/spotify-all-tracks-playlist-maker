@@ -33,7 +33,7 @@ export default function Header() {
           onClick={() => router.push("/")}
           style={{ cursor: "pointer" }}
         >
-          オルトラメーカー
+          オルトラメイカ〜
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
         {!session ? (

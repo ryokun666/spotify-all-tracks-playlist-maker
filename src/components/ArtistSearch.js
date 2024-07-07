@@ -5,8 +5,9 @@ import { useSession, signIn } from "next-auth/react";
 import {
   TextField,
   Autocomplete,
-  CircularProgress,
   Avatar,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 
 const ArtistSearch = () => {
@@ -34,7 +35,7 @@ const ArtistSearch = () => {
     } catch (error) {
       setLoading(false);
       if (error.response && error.response.status === 401) {
-        signIn();
+        signIn(); // Re-authenticate if token is expired or invalid
       }
     }
   };
@@ -46,55 +47,64 @@ const ArtistSearch = () => {
       } else {
         setArtists([]);
       }
-    }, 100);
+    }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent form submission
+    }
+  };
+
   return (
-    <Autocomplete
-      freeSolo
-      disableClearable
-      options={artists}
-      getOptionLabel={(option) => option.name}
-      onInputChange={(event, newValue) => {
-        setQuery(newValue);
-      }}
-      onChange={(event, newValue) => {
-        if (newValue) {
-          router.push(`/artist/${newValue.id}`);
-        }
-      }}
-      renderOption={(props, option) => (
-        <li {...props}>
-          <Avatar
-            src={option.images[0]?.url || ""}
-            alt={option.name}
-            sx={{ width: 28, height: 28, marginRight: 2 }}
+    <Box position="relative" width="100%" marginTop={2}>
+      <Autocomplete
+        freeSolo
+        disableClearable
+        options={artists}
+        getOptionLabel={(option) => option.name}
+        onInputChange={(event, newValue) => {
+          setQuery(newValue);
+        }}
+        onChange={(event, newValue) => {
+          if (newValue) {
+            router.push(`/artist/${newValue.id}`);
+          }
+        }}
+        renderOption={(props, option) => (
+          <li {...props}>
+            <Avatar
+              src={option.images[0]?.url || ""}
+              alt={option.name}
+              sx={{ width: 28, height: 28, marginRight: 2 }}
+            />
+            {option.name}
+          </li>
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="アーティストを検索する"
+            onKeyDown={handleKeyDown}
+            InputProps={{
+              ...params.InputProps,
+              type: "search",
+              endAdornment: (
+                <>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
           />
-          {option.name}
-        </li>
-      )}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Search for an artist"
-          InputProps={{
-            ...params.InputProps,
-            type: "search",
-            endAdornment: (
-              <>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-      style={{ width: "100%", marginTop: 20 }}
-    />
+        )}
+        style={{ width: "100%" }}
+      />
+    </Box>
   );
 };
 

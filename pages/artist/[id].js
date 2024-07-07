@@ -14,6 +14,7 @@ import {
   Avatar,
   Divider,
   Box,
+  CircularProgress,
 } from "@mui/material";
 
 export default function Artist() {
@@ -21,9 +22,9 @@ export default function Artist() {
   const { id } = router.query;
   const { data: session } = useSession();
   const [artist, setArtist] = useState(null);
-  const [albums, setAlbums] = useState([]); // This state might not be used if not displayed.
+  const [albums, setAlbums] = useState([]);
   const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(true); // 追加: ローディング状態の管理
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id && session) {
@@ -38,7 +39,7 @@ export default function Artist() {
     }
 
     const token = session.user.accessToken;
-    setLoading(true); // データ取得開始時にローディングをtrueに
+    setLoading(true);
 
     try {
       const artistResponse = await axios.get(
@@ -59,6 +60,10 @@ export default function Artist() {
           },
         }
       );
+      const getUniqueAlbums = (albums) => {
+        const uniqueIds = new Set(albums.map((album) => album.id));
+        return albums.filter((album) => uniqueIds.has(album.id));
+      };
       const uniqueAlbums = getUniqueAlbums(albumResponse.data.items);
       setAlbums(uniqueAlbums);
       await fetchTracks(uniqueAlbums, token);
@@ -69,12 +74,6 @@ export default function Artist() {
     }
   };
 
-  const getUniqueAlbums = (albums) => {
-    const uniqueIds = new Set(albums.map((album) => album.id));
-    return albums.filter((album) => uniqueIds.has(album.id));
-  };
-
-  // トラックの取得処理
   const fetchTracks = async (albums, token) => {
     let allTracks = [];
     for (const album of albums) {
@@ -95,10 +94,20 @@ export default function Artist() {
     setTracks(allTracks);
   };
 
-  // ローディング状態の表示
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return (
+  //     <Container>
+  //       <Box
+  //         display="flex"
+  //         justifyContent="center"
+  //         alignItems="center"
+  //         minHeight="80vh"
+  //       >
+  //         <CircularProgress />
+  //       </Box>
+  //     </Container>
+  //   );
+  // }
 
   if (!artist) {
     return <div>No artist data.</div>;
@@ -107,54 +116,68 @@ export default function Artist() {
   return (
     <Container>
       <ArtistSearch />
-      <Grid container spacing={2} alignItems="center" mt={4}>
-        <Grid item xs={12} sm={4}>
+      <Grid container spacing={2} alignItems="center" mt={1}>
+        <Grid item xs={12} sm={4} md={3}>
           {artist.images.length > 0 && (
             <Avatar
               alt={`Image of ${artist.name}`}
               src={artist.images[0].url}
-              style={{ width: "50%", height: "auto" }}
+              sx={{ width: "100%", height: "auto", boxShadow: 3 }}
+              variant="square"
             />
           )}
         </Grid>
-        <Grid item xs={12} sm={8}>
-          <Typography variant="h4">{artist.name}</Typography>
-          <Typography variant="body1">
-            {artist.followers.total} followers
-          </Typography>
-          <Typography variant="body1">
-            Genres: {artist.genres.join(", ")}
-          </Typography>
-          <Typography variant="h6" style={{ margin: "20px 0" }}>
-            Total Tracks: {tracks.length}
-          </Typography>
-          <PlaylistButton tracks={tracks} artistName={artist.name} />
+        <Grid item xs={12} sm={8} md={9} mb={4}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            height="100%"
+          >
+            <Typography variant="h4">{artist.name}</Typography>
+            <Typography variant="body1">
+              {artist.followers.total.toLocaleString()} followers
+            </Typography>
+            <Typography variant="body1">
+              Genres: {artist.genres.join(", ")}
+            </Typography>
+            <Typography variant="h6" style={{ margin: "20px 0" }}>
+              Total Tracks: {tracks.length}
+            </Typography>
+            <PlaylistButton tracks={tracks} artistName={artist.name} />
+          </Box>
         </Grid>
       </Grid>
-      <Box sx={{ maxHeight: 600, overflowY: "auto" }}>
-        <List>
-          {tracks.map((track, index) => (
-            <div key={index}>
-              <ListItem>
-                {track.albumImage && (
-                  <img
-                    alt={`Album cover of ${track.name}`}
-                    src={track.albumImage}
-                    style={{ marginRight: 16, width: 64, height: 64 }}
+      {!loading ? (
+        <Box sx={{ maxHeight: 600, overflowY: "auto" }}>
+          <List>
+            {tracks.map((track, index) => (
+              <div key={index}>
+                <ListItem>
+                  {track.albumImage && (
+                    <img
+                      alt={`Album cover of ${track.name}`}
+                      src={track.albumImage}
+                      style={{ marginRight: 16, width: 64, height: 64 }}
+                    />
+                  )}
+                  <ListItemText
+                    primary={track.name}
+                    secondary={track.artists
+                      .map((artist) => artist.name)
+                      .join(", ")}
                   />
-                )}
-                <ListItemText
-                  primary={track.name}
-                  secondary={track.artists
-                    .map((artist) => artist.name)
-                    .join(", ")}
-                />
-              </ListItem>
-              {index !== tracks.length - 1 && <Divider />}
-            </div>
-          ))}
-        </List>
-      </Box>
+                </ListItem>
+                {index !== tracks.length - 1 && <Divider />}
+              </div>
+            ))}
+          </List>
+        </Box>
+      ) : (
+        <Box display="flex" justifyContent="center" alignItems="center">
+          <CircularProgress />
+        </Box>
+      )}
     </Container>
   );
 }
