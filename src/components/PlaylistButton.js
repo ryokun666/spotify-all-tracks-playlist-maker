@@ -95,7 +95,7 @@ const PlaylistButton = ({ tracks, artistName }) => {
           </Link>
         </Typography>
       )}
-      <Snackbar open={open} autoHideDuration={100} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={5000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {message}
         </Alert>
