@@ -94,23 +94,8 @@ export default function Artist() {
     setTracks(allTracks);
   };
 
-  // if (loading) {
-  //   return (
-  //     <Container>
-  //       <Box
-  //         display="flex"
-  //         justifyContent="center"
-  //         alignItems="center"
-  //         minHeight="80vh"
-  //       >
-  //         <CircularProgress />
-  //       </Box>
-  //     </Container>
-  //   );
-  // }
-
   if (!artist) {
-    return <div>No artist data.</div>;
+    return <div>ログインしてください。</div>;
   }
 
   return (
