@@ -10,7 +10,7 @@ export default NextAuth({
         url: "https://accounts.spotify.com/authorize",
         params: {
           scope:
-            "user-read-private user-read-email playlist-modify-public playlist-modify-private",
+            "ugc-image-upload user-read-private playlist-modify-public playlist-modify-private user-library-modify user-library-read",
         },
       },
     }),
